@@ -1,1 +1,33 @@
+queues:
+  - name: symbols_queue
+    description: Queue of sp500 tickers.
+  - name: data_print_queue
+    description: Queue for printing generated priceinfo(ticker,price).
 
+
+workers:
+  - name: TickerWorker
+    description: Worker to put sp500 tickers into symbols_queue.
+    location: workers.TickerWorker
+    class: TickerWorker
+    instance: 1
+    output_queue: 
+      - symbols_queue
+
+
+
+  - name: RandomPriceWorkers
+    description: Worker to generate random price given symbols taken from symbols_queue.
+    location: workers.RandomPriceWorkers
+    class: RandomPriceWorkers
+    instance: 2
+    input_queue: symbols_queue
+    output_queue: 
+      - data_print_queue
+
+  - name: DataPrintWorkers
+    description: Worker to take price from input queues and print them.
+    location: workers.DataPrintWorkers
+    class: DataPrintWorkers
+    instance: 2
+    input_queue: data_print_queue
